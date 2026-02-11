@@ -12,7 +12,7 @@ pub const O: i32 = 2;
 
 pub struct TicTacToe {
     n: usize,
-    grid: Vec<Vec<i32>>,
+    grid: Vec<i32>,
     turn: i32,
     turn_number: usize,
     winner: i32,
@@ -34,7 +34,7 @@ impl TicTacToe {
     pub fn new(n: usize) -> Self {
         Self {
             n,
-            grid: vec![vec![PERSONNE; n]; n],
+            grid: vec![PERSONNE; n * n],
             turn: X,
             turn_number: 0,
             winner: PERSONNE,
@@ -42,7 +42,7 @@ impl TicTacToe {
     }
 
     fn init(&mut self) {
-        self.grid = vec![vec![PERSONNE; self.n]; self.n];
+        self.grid = vec![PERSONNE; self.n * self.n];
         self.turn = X;
         self.turn_number = 0;
         self.winner = PERSONNE;
@@ -56,7 +56,7 @@ impl TicTacToe {
         return self.n;
     }
     pub fn get_case(&self, x: usize, y: usize) -> i32 {
-        return self.grid[y][x];
+        return self.grid[y * self.n + x];
     }
     pub fn get_turn(&self) -> i32 {
         return self.turn;
@@ -73,16 +73,16 @@ impl TicTacToe {
     }
 
     pub fn choose_winner(&self) -> i32 {
-        let mut diag1_completed: i32 = self.grid[0][0];
-        let mut diag2_completed: i32 = self.grid[0][self.n - 1];
+        let mut diag1_completed: i32 = self.grid[0];
+        let mut diag2_completed: i32 = self.grid[self.n - 1];
         for i in 0..self.n {
-            let mut line_completed: i32 = self.grid[i][0];
-            let mut col_completed: i32 = self.grid[0][i];
+            let mut line_completed: i32 = self.grid[i * self.n + 0];
+            let mut col_completed: i32 = self.grid[i];
             for j in 0..self.n {
-                if line_completed.ne(&self.grid[i][j]) {
+                if line_completed.ne(&self.grid[i * self.n + j]) {
                     line_completed = PERSONNE;
                 }
-                if col_completed.ne(&self.grid[j][i]) {
+                if col_completed.ne(&self.grid[j * self.n + i]) {
                     col_completed = PERSONNE;
                 }
             }
@@ -94,10 +94,10 @@ impl TicTacToe {
             }
 
             if i > 0 {
-                if diag1_completed.ne(&self.grid[i][i]) {
+                if diag1_completed.ne(&self.grid[i * self.n + i]) {
                     diag1_completed = PERSONNE;
                 }
-                if diag2_completed.ne(&self.grid[i][self.n - i - 1]) {
+                if diag2_completed.ne(&self.grid[i * self.n + self.n - i - 1]) {
                     diag2_completed = PERSONNE;
                 }
             }
@@ -114,20 +114,20 @@ impl TicTacToe {
     }
 
     pub fn play(&mut self, x: usize, y: usize) {
-        if self.grid[y][x] != PERSONNE || self.is_over() {
+        if self.grid[y * self.n + x] != PERSONNE || self.is_over() {
             return;
         }
-        self.grid[y][x] = self.turn;
+        self.grid[y * self.n + x] = self.turn;
         self.turn = 3 - self.turn;
         self.turn_number += 1;
         self.winner = self.choose_winner();
     }
 
     pub fn remove(&mut self, x: usize, y: usize) {
-        if self.grid[y][x] == PERSONNE {
+        if self.grid[y * self.n + x] == PERSONNE {
             return;
         }
-        self.grid[y][x] = PERSONNE;
+        self.grid[y * self.n + x] = PERSONNE;
         self.turn = 3 - self.turn;
         self.turn_number -= 1;
         self.winner = PERSONNE;
@@ -158,7 +158,7 @@ impl TicTacToe {
 
         for y in rows {
             for x in columns.clone() {
-                if self.grid[y][x] != PERSONNE {
+                if self.grid[y * self.n + x] != PERSONNE {
                     continue;
                 }
 

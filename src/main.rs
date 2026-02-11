@@ -18,7 +18,7 @@ pub async fn display_tictactoe(game: &TicTacToe) {
             let x = j as f32 * cell_size;
             let y = i as f32 * cell_size;
 
-            if j == hovered_cell_x && i == hovered_cell_y {
+            if !game.is_over() && j == hovered_cell_x && i == hovered_cell_y {
                 draw_rectangle(x, y, cell_size, cell_size, color::LIGHTGRAY);
             }
             draw_rectangle_lines(x, y, cell_size, cell_size, 2.0, color::BLACK);
