@@ -53,7 +53,7 @@ pub async fn display_tictactoe(game: &TicTacToe) {
 
 #[macroquad::main("TicTacToe")]
 async fn main() {
-    let mut game = TicTacToe::new(3);
+    let mut game = TicTacToe::new(4);
     let mut bot_plays_first = false;
     loop {
         let cell_size = screen_width().min(screen_height()) / game.get_n() as f32;

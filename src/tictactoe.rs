@@ -3,19 +3,19 @@ use rand::Rng;
 struct Play {
     pub x: usize,
     pub y: usize,
-    pub score: i32,
+    pub score: i8,
 }
 
-pub const PERSONNE: i32 = 0;
-pub const X: i32 = 1;
-pub const O: i32 = 2;
+pub const PERSONNE: i8 = 0;
+pub const X: i8 = 1;
+pub const O: i8 = 2;
 
 pub struct TicTacToe {
     n: usize,
-    grid: Vec<i32>,
-    turn: i32,
+    grid: Vec<i8>,
+    turn: i8,
     turn_number: usize,
-    winner: i32,
+    winner: i8,
 }
 
 fn shuffle_array(array: &mut Vec<usize>) {
@@ -47,7 +47,7 @@ impl TicTacToe {
         self.turn_number = 0;
         self.winner = PERSONNE;
     }
-    fn init_player(&mut self, p: i32) {
+    fn init_player(&mut self, p: i8) {
         self.init();
         self.turn = p;
     }
@@ -55,16 +55,16 @@ impl TicTacToe {
     pub fn get_n(&self) -> usize {
         return self.n;
     }
-    pub fn get_case(&self, x: usize, y: usize) -> i32 {
+    pub fn get_case(&self, x: usize, y: usize) -> i8 {
         return self.grid[y * self.n + x];
     }
-    pub fn get_turn(&self) -> i32 {
+    pub fn get_turn(&self) -> i8 {
         return self.turn;
     }
     pub fn get_turn_number(&self) -> usize {
         return self.turn_number;
     }
-    pub fn get_winner(&self) -> i32 {
+    pub fn get_winner(&self) -> i8 {
         return self.winner;
     }
 
@@ -72,12 +72,12 @@ impl TicTacToe {
         self.turn_number == 9 || self.winner != PERSONNE
     }
 
-    pub fn choose_winner(&self) -> i32 {
-        let mut diag1_completed: i32 = self.grid[0];
-        let mut diag2_completed: i32 = self.grid[self.n - 1];
+    pub fn choose_winner(&self) -> i8 {
+        let mut diag1_completed: i8 = self.grid[0];
+        let mut diag2_completed: i8 = self.grid[self.n - 1];
         for i in 0..self.n {
-            let mut line_completed: i32 = self.grid[i * self.n + 0];
-            let mut col_completed: i32 = self.grid[i];
+            let mut line_completed: i8 = self.grid[i * self.n + 0];
+            let mut col_completed: i8 = self.grid[i];
             for j in 0..self.n {
                 if line_completed.ne(&self.grid[i * self.n + j]) {
                     line_completed = PERSONNE;
@@ -141,14 +141,14 @@ impl TicTacToe {
         }
     }
 
-    fn best_play(&mut self, p: i32) -> Option<Play> {
+    fn best_play(&mut self, p: i8) -> Option<Play> {
         if self.is_over() {
             return None;
         }
         let mut best_play: Play = Play {
             x: 0,
             y: 0,
-            score: i32::MIN,
+            score: i8::MIN,
         };
 
         let mut rows: Vec<usize> = (0..self.n).collect();
@@ -162,16 +162,16 @@ impl TicTacToe {
                     continue;
                 }
 
-                let mut score: i32 = i32::MIN;
+                let mut score: i8 = i8::MIN;
                 self.play(x, y);
 
                 if self.is_over() {
                     if self.winner == PERSONNE {
                         score = 0;
                     } else if self.winner == p {
-                        score = i32::MAX
+                        score = i8::MAX
                     } else {
-                        score = i32::MIN
+                        score = i8::MIN
                     }
                 } else if let Some(temp) = self.best_play(3 - p) {
                     if score < temp.score {
