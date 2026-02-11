@@ -1,0 +1,209 @@
+use rand::Rng;
+
+use crate::player::Player;
+
+struct Play {
+    pub x: usize,
+    pub y: usize,
+    pub score: i32,
+}
+
+pub struct TicTacToe {
+    n: usize,
+    grid: Vec<Vec<Option<Player>>>,
+    turn: Player,
+    turn_number: usize,
+    winner: Option<Player>,
+}
+
+fn shuffle_array(array: &mut Vec<usize>) {
+    let mut rnd = rand::rng();
+    let mut index: usize;
+    let mut temp: usize;
+    for i in (0..array.len()).rev() {
+        index = rnd.random_range(0..i + 1);
+        temp = array[index];
+        array[index] = array[i];
+        array[i] = temp;
+    }
+}
+
+impl TicTacToe {
+    pub fn new(n: usize) -> Self {
+        Self {
+            n,
+            grid: vec![vec![None; n]; n],
+            turn: Player::X,
+            turn_number: 0,
+            winner: None,
+        }
+    }
+
+    fn init(&mut self) {
+        self.grid = vec![vec![None; self.n]; self.n];
+        self.turn = Player::X;
+        self.turn_number = 0;
+        self.winner = None;
+    }
+    fn init_player(&mut self, p: Player) {
+        self.init();
+        self.turn = p;
+    }
+
+    pub fn get_n(&self) -> usize {
+        return self.n;
+    }
+    pub fn get_case(&self, x: usize, y: usize) -> &Option<Player> {
+        return &self.grid[y][x];
+    }
+    pub fn get_turn(&self) -> Player {
+        return self.turn;
+    }
+    pub fn get_turn_number(&self) -> usize {
+        return self.turn_number;
+    }
+    pub fn get_winner(&self) -> &Option<Player> {
+        return &self.winner;
+    }
+
+    pub fn is_free(&self, x: usize, y: usize) -> bool {
+        self.grid[y][x].is_none()
+    }
+
+    pub fn is_over(&self) -> bool {
+        self.turn_number == 9 || self.winner.is_some()
+    }
+
+    pub fn choose_winner(&self) -> Option<Player> {
+        let mut diag1_completed: Option<Player> = self.grid[0][0];
+        let mut diag2_completed: Option<Player> = self.grid[0][self.n - 1];
+        for i in 0..self.n {
+            let mut line_completed: Option<Player> = self.grid[i][0];
+            let mut col_completed: Option<Player> = self.grid[0][i];
+            for j in 0..self.n {
+                if line_completed.ne(&self.grid[i][j]) {
+                    line_completed = None;
+                }
+                if col_completed.ne(&self.grid[j][i]) {
+                    col_completed = None;
+                }
+            }
+            if line_completed.is_some() {
+                return line_completed;
+            }
+            if col_completed.is_some() {
+                return col_completed;
+            }
+
+            if i > 0 {
+                if diag1_completed.ne(&self.grid[i][i]) {
+                    diag1_completed = None;
+                }
+                if diag2_completed.ne(&self.grid[i][self.n - i - 1]) {
+                    diag2_completed = None;
+                }
+            }
+        }
+        if diag1_completed.is_some() {
+            return diag1_completed;
+        }
+        if diag2_completed.is_some() {
+            return diag2_completed;
+        }
+
+        None
+    }
+
+    pub fn play(&mut self, x: usize, y: usize) {
+        if !self.is_free(x, y) || self.is_over() {
+            return;
+        }
+        self.grid[y][x] = Some(self.turn);
+        self.turn = self.turn.other();
+        self.turn_number += 1;
+        self.winner = self.choose_winner();
+    }
+
+    pub fn remove(&mut self, x: usize, y: usize) {
+        if self.is_free(x, y) {
+            return;
+        }
+        self.grid[y][x] = None;
+        self.turn = self.turn.other();
+        self.turn_number -= 1;
+        self.winner = None;
+    }
+
+    pub fn reset(&mut self) {
+        if self.turn_number % 2 == 0 {
+            self.init_player(self.turn.other());
+        } else {
+            self.init_player(self.turn);
+        }
+    }
+
+    fn best_play(&mut self, p: Player) -> Option<Play> {
+        if self.is_over() {
+            return None;
+        }
+        let mut best_play: Play = Play {
+            x: 0,
+            y: 0,
+            score: i32::MIN,
+        };
+
+        let mut rows: Vec<usize> = (0..self.n).collect();
+        let mut columns: Vec<usize> = (0..self.n).collect();
+        shuffle_array(&mut rows);
+        shuffle_array(&mut columns);
+
+        for y in rows {
+            for x in columns.clone() {
+                if !self.is_free(x, y) {
+                    continue;
+                }
+
+                let mut score: i32 = i32::MIN;
+                self.play(x, y);
+
+                if self.is_over() {
+                    match self.winner {
+                        Some(player) => {
+                            if player == p {
+                                score = i32::MAX;
+                            } else {
+                                score = i32::MIN;
+                            }
+                        }
+                        None => score = 0,
+                    };
+                } else if let Some(temp) = self.best_play(p.other()) {
+                    if score < temp.score {
+                        score = temp.score;
+                    }
+                }
+
+                if score > best_play.score {
+                    best_play.x = x;
+                    best_play.y = y;
+                    best_play.score = score;
+                }
+
+                self.remove(x, y);
+            }
+        }
+
+        return Some(Play {
+            x: best_play.x,
+            y: best_play.y,
+            score: -(best_play.score - 1),
+        });
+    }
+
+    pub fn bot_play(&mut self) {
+        if let Some(best_play) = self.best_play(self.turn) {
+            self.play(best_play.x, best_play.y);
+            println!("bot played {},{}", best_play.x, best_play.y);
+        }
+    }
+}
