@@ -1,5 +1,4 @@
-use hai801i_tictactoe::player::Player;
-use hai801i_tictactoe::tictactoe::TicTacToe;
+use hai801i_tictactoe::tictactoe::{O, PERSONNE, TicTacToe, X};
 use macroquad::color;
 use macroquad::input::{MouseButton, is_mouse_button_pressed, mouse_position};
 use macroquad::shapes::{draw_rectangle, draw_rectangle_lines};
@@ -24,10 +23,18 @@ pub async fn display_tictactoe(game: &TicTacToe) {
             }
             draw_rectangle_lines(x, y, cell_size, cell_size, 2.0, color::BLACK);
 
-            if let Some(player) = game.get_case(j, i) {
-                let text = match player {
-                    Player::X => "X",
-                    Player::O => "O",
+            let case = game.get_case(j, i);
+            if case != PERSONNE {
+                let text = match case {
+                    X => "X",
+                    O => "O",
+                    _ => "ERREUR",
+                };
+
+                let color = match case {
+                    X => color::GRAY,
+                    O => color::BLUE,
+                    _ => color::RED,
                 };
 
                 draw_text(
@@ -35,7 +42,7 @@ pub async fn display_tictactoe(game: &TicTacToe) {
                     x + cell_size / 2.0 - 10.0,
                     y + cell_size / 2.0 + 10.0,
                     40.0,
-                    player.get_color(),
+                    color,
                 );
             }
         }
