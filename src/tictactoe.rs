@@ -141,7 +141,7 @@ impl TicTacToe {
         }
     }
 
-    fn best_play(&mut self, p: i8) -> Option<Play> {
+    fn best_play(&mut self) -> Option<Play> {
         if self.is_over() {
             return None;
         }
@@ -168,12 +168,10 @@ impl TicTacToe {
                 if self.is_over() {
                     if self.winner == PERSONNE {
                         score = 0;
-                    } else if self.winner == p {
-                        score = i8::MAX
                     } else {
-                        score = i8::MIN
+                        score = i8::MAX
                     }
-                } else if let Some(temp) = self.best_play(3 - p) {
+                } else if let Some(temp) = self.best_play() {
                     if score < temp.score {
                         score = temp.score;
                     }
@@ -197,7 +195,7 @@ impl TicTacToe {
     }
 
     pub fn bot_play(&mut self) {
-        if let Some(best_play) = self.best_play(self.turn) {
+        if let Some(best_play) = self.best_play() {
             self.play(best_play.x, best_play.y);
             println!("bot played {},{}", best_play.x, best_play.y);
         }
